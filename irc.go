@@ -4,7 +4,6 @@ import (
 	"bufio"
 	"crypto/tls"
 	"fmt"
-	"io"
 	"log"
 	"net"
 	"net/textproto"
@@ -28,7 +27,7 @@ func (t *Twitch) serveIrc(listener net.Listener) {
 	defer conn.Close()
 	for {
 		message, err := tp.ReadLine()
-		if err != nil && err != io.EOF {
+		if err != nil {
 			t.Errors <- err
 			return
 		}

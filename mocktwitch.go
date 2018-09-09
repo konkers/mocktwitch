@@ -17,7 +17,7 @@ type Twitch struct {
 	keys    *keys
 	ircConn net.Conn
 
-	channelStatus protocol.Channel
+	ChannelStatus protocol.Channel
 }
 
 var listenPort = 14823
@@ -59,5 +59,5 @@ func (t *Twitch) SendMessage(channel string, author string, message string) {
 }
 
 func (t *Twitch) SetChannelStatus(status *protocol.Channel) {
-	t.channelStatus = *status
+	t.ChannelStatus = *status
 }

@@ -24,7 +24,7 @@ func (t *Twitch) apiHandleChannel(w http.ResponseWriter, req *http.Request) {
 	if req.Method == http.MethodGet {
 		w.Header().Set("Content-Type", "application/json")
 
-		b, err := json.Marshal(&t.channelStatus)
+		b, err := json.Marshal(&t.ChannelStatus)
 		if err != nil {
 			t.apiError(w, req, "can't marshal connection: %v.", err)
 			return
@@ -63,11 +63,11 @@ func (t *Twitch) apiHandlePutChannels(w http.ResponseWriter, req *http.Request) 
 	}
 
 	if update.Channel.Status != nil {
-		t.channelStatus.Status = *update.Channel.Status
+		t.ChannelStatus.Status = *update.Channel.Status
 	}
 
 	if update.Channel.Game != nil {
-		t.channelStatus.Game = *update.Channel.Game
+		t.ChannelStatus.Game = *update.Channel.Game
 	}
 
 	// Nothing to do with Delay or ChannelFeedEnabled right now.

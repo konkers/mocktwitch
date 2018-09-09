@@ -64,7 +64,7 @@ func (t *Twitch) newIrcServer() error {
 		return err
 	}
 
-	t.IrcHost = host
+	t.IrcHost = "127.0.0.1" + host
 
 	go t.serveIrc(listener)
 

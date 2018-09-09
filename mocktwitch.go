@@ -14,6 +14,8 @@ type Twitch struct {
 	Errors      chan error
 	ForceErrors bool
 
+	IrcMeassageChan chan string
+
 	keys    *keys
 	ircConn net.Conn
 
@@ -32,6 +34,8 @@ func NewTwitch() (*Twitch, error) {
 	if err != nil {
 		return nil, err
 	}
+
+	t.IrcMeassageChan = make(chan string, 100)
 
 	err = t.newIrcServer()
 	if err != nil {

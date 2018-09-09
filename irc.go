@@ -5,6 +5,7 @@ import (
 	"crypto/tls"
 	"fmt"
 	"io"
+	"log"
 	"net"
 	"net/textproto"
 	"strconv"
@@ -35,8 +36,16 @@ func (t *Twitch) serveIrc(listener net.Listener) {
 		if strings.HasPrefix(message, "NICK") {
 			fmt.Fprintf(conn, ":tmi.twitch.tv 001 justinfan123123 :Welcome, GLHF!\r\n")
 		} else {
-			//onMessage(message)
+			t.onIRCMessage(message)
 		}
+	}
+}
+
+func (t *Twitch) onIRCMessage(message string) {
+	select {
+	case t.IrcMeassageChan <- message:
+	default:
+		log.Printf("dropped message %s", message)
 	}
 }
 

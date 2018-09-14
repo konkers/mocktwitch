@@ -75,6 +75,34 @@ func (t *Twitch) apiHandlePutChannels(w http.ResponseWriter, req *http.Request) 
 	fmt.Fprintf(w, "OK")
 }
 
+func (t *Twitch) apiHandleChannelsFollows(w http.ResponseWriter, req *http.Request) {
+	if t.ForceErrors {
+		t.apiError(w, req, "Forced Error")
+		return
+	}
+	if req.Method == http.MethodGet {
+		vars := mux.Vars(req)
+		channelName, ok := vars["channel"]
+		if !ok {
+			t.apiError(w, req, "No channel name var from mux!")
+			return
+		}
+
+		if channelName != "test" {
+			t.apiError(w, req, "Only test channel supported.")
+			return
+		}
+		w.Header().Set("Content-Type", "application/json")
+
+		b, err := json.Marshal(&t.ChannelFollows)
+		if err != nil {
+			t.apiError(w, req, "can't marshal connection: %v.", err)
+			return
+		}
+		w.Write(b)
+	}
+}
+
 func (t *Twitch) newAPIServer() error {
 	host := ":" + strconv.Itoa(listenPort)
 	listenPort++
@@ -82,6 +110,7 @@ func (t *Twitch) newAPIServer() error {
 	t.ApiUrlBase = "https://localhost" + host
 	r := mux.NewRouter()
 	r.HandleFunc("/channel", t.apiHandleChannel)
+	r.HandleFunc("/channels/{channel}/follows", t.apiHandleChannelsFollows)
 	r.HandleFunc("/channels/{channel}", t.apiHandlePutChannels).Methods("PUT")
 	go http.ListenAndServeTLS(host, t.keys.certFilename, t.keys.keyFilename, r)
 	return nil

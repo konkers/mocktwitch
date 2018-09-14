@@ -19,7 +19,8 @@ type Twitch struct {
 	keys    *keys
 	ircConn net.Conn
 
-	ChannelStatus protocol.Channel
+	ChannelStatus  protocol.Channel
+	ChannelFollows protocol.ChannelFollows
 }
 
 var listenPort = 14823

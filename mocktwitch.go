@@ -1,6 +1,7 @@
 package mocktwitch
 
 import (
+	"crypto/tls"
 	"fmt"
 	"net"
 	"os"
@@ -16,7 +17,8 @@ type Twitch struct {
 
 	IrcMeassageChan chan string
 
-	keys    *keys
+	// Keys is public so that downstream tests can use them.
+	Keys    *Keys
 	ircConn net.Conn
 
 	ChannelStatus  protocol.Channel
@@ -31,7 +33,7 @@ func NewTwitch() (*Twitch, error) {
 	}
 
 	var err error
-	t.keys, err = generateCert("localhost")
+	t.Keys, err = generateCert("localhost")
 	if err != nil {
 		return nil, err
 	}
@@ -52,8 +54,8 @@ func NewTwitch() (*Twitch, error) {
 }
 
 func (t *Twitch) Close() {
-	os.Remove(t.keys.certFilename)
-	os.Remove(t.keys.keyFilename)
+	os.Remove(t.Keys.CertFilename)
+	os.Remove(t.Keys.KeyFilename)
 }
 
 func (t *Twitch) SendMessage(channel string, author string, message string) {
@@ -65,4 +67,15 @@ func (t *Twitch) SendMessage(channel string, author string, message string) {
 
 func (t *Twitch) SetChannelStatus(status *protocol.Channel) {
 	t.ChannelStatus = *status
+}
+
+func (t *Twitch) getTLSListener(host string) (net.Listener, error) {
+	cert, err := tls.LoadX509KeyPair(t.Keys.CertFilename, t.Keys.KeyFilename)
+	if err != nil {
+		return nil, err
+	}
+	config := &tls.Config{
+		Certificates: []tls.Certificate{cert},
+	}
+	return tls.Listen("tcp", host, config)
 }

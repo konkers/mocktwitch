@@ -2,7 +2,6 @@ package mocktwitch
 
 import (
 	"bufio"
-	"crypto/tls"
 	"fmt"
 	"log"
 	"net"
@@ -49,22 +48,14 @@ func (t *Twitch) onIRCMessage(message string) {
 }
 
 func (t *Twitch) newIrcServer() error {
-	host := ":" + strconv.Itoa(listenPort)
+	host := "127.0.0.1:" + strconv.Itoa(listenPort)
 	listenPort++
+	t.IrcHost = host
 
-	cert, err := tls.LoadX509KeyPair(t.keys.certFilename, t.keys.keyFilename)
+	listener, err := t.getTLSListener(host)
 	if err != nil {
 		return err
 	}
-	config := &tls.Config{
-		Certificates: []tls.Certificate{cert},
-	}
-	listener, err := tls.Listen("tcp", host, config)
-	if err != nil {
-		return err
-	}
-
-	t.IrcHost = "127.0.0.1" + host
 
 	go t.serveIrc(listener)
 

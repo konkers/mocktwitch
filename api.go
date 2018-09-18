@@ -104,14 +104,21 @@ func (t *Twitch) apiHandleChannelsFollows(w http.ResponseWriter, req *http.Reque
 }
 
 func (t *Twitch) newAPIServer() error {
-	host := ":" + strconv.Itoa(listenPort)
+	host := "localhost:" + strconv.Itoa(listenPort)
 	listenPort++
 
-	t.ApiUrlBase = "https://localhost" + host
+	t.ApiUrlBase = "https://" + host
 	r := mux.NewRouter()
 	r.HandleFunc("/channel", t.apiHandleChannel)
 	r.HandleFunc("/channels/{channel}/follows", t.apiHandleChannelsFollows)
 	r.HandleFunc("/channels/{channel}", t.apiHandlePutChannels).Methods("PUT")
-	go http.ListenAndServeTLS(host, t.keys.certFilename, t.keys.keyFilename, r)
+
+	listener, err := t.getTLSListener(host)
+	if err != nil {
+		return err
+	}
+
+	// Here we call Serve instead of ServeTLS because getTLSListener()
+	go http.Serve(listener, r)
 	return nil
 }

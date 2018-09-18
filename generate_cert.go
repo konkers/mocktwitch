@@ -51,12 +51,12 @@ func pemBlockForKey(priv interface{}) *pem.Block {
 	}
 }
 
-type keys struct {
-	certFilename string
-	keyFilename  string
+type Keys struct {
+	CertFilename string
+	KeyFilename  string
 }
 
-func generateCert(host string) (*keys, error) {
+func generateCert(host string) (*Keys, error) {
 
 	priv, err := ecdsa.GenerateKey(elliptic.P256(), rand.Reader)
 	if err != nil {
@@ -96,29 +96,29 @@ func generateCert(host string) (*keys, error) {
 		return nil, fmt.Errorf("Failed to create certificate: %s", err)
 	}
 
-	var keys keys
+	var keys Keys
 	f, err := ioutil.TempFile("", "cert.pem")
 	if err != nil {
 		return nil, fmt.Errorf("Can't get temp name for cert.pem: %v", err)
 
 	}
-	keys.certFilename = f.Name()
+	keys.CertFilename = f.Name()
 
 	f, err = ioutil.TempFile("", "key.pem")
 	if err != nil {
 		return nil, fmt.Errorf("Can't get temp name for key.pem: %v", err)
 
 	}
-	keys.keyFilename = f.Name()
+	keys.KeyFilename = f.Name()
 
-	certOut, err := os.Create(keys.certFilename)
+	certOut, err := os.Create(keys.CertFilename)
 	if err != nil {
 		return nil, fmt.Errorf("failed to open cert.pem for writing: %s", err)
 	}
 	pem.Encode(certOut, &pem.Block{Type: "CERTIFICATE", Bytes: derBytes})
 	certOut.Close()
 
-	keyOut, err := os.OpenFile(keys.keyFilename, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0600)
+	keyOut, err := os.OpenFile(keys.KeyFilename, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0600)
 	if err != nil {
 		return nil, fmt.Errorf("failed to open key.pem for writing: %v", err)
 	}

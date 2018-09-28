@@ -32,7 +32,9 @@ func (t *Twitch) serveIrc(listener net.Listener) {
 		}
 		message = strings.Replace(message, "\r\n", "", 1)
 		if strings.HasPrefix(message, "NICK") {
-			fmt.Fprintf(conn, ":tmi.twitch.tv 001 justinfan123123 :Welcome, GLHF!\r\n")
+			if !t.SquelchIrc {
+				fmt.Fprintf(conn, ":tmi.twitch.tv 001 justinfan123123 :Welcome, GLHF!\r\n")
+			}
 		} else {
 			t.onIRCMessage(message)
 		}
